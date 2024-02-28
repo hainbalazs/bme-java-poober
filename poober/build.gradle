@@ -1,0 +1,67 @@
+plugins {
+	id "com.avast.gradle.docker-compose" version "0.14.3"
+	id 'org.springframework.boot' version '2.4.3'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'org.asciidoctor.convert' version '1.5.8'
+	id 'java'
+	id 'war'
+}
+
+group = 'hu.bme.aut.stepsysterv'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('snippetsDir', file("build/generated-snippets"))
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.security:spring-security-test'
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	//implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+	implementation "org.springframework.boot:spring-boot-starter-mail"
+	implementation 'org.springframework.session:spring-session-core'
+	implementation 'javax.validation:validation-api:2.0.1.Final'
+	implementation 'junit:junit:4.12'
+	implementation 'junit:junit:4.12'
+	runtimeOnly 'mysql:mysql-connector-java'
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.16.0'
+	testImplementation 'org.springframework.amqp:spring-rabbit-test'
+	implementation 'com.google.code.gson:gson:2.8.6'
+}
+
+task startService {
+	sleep(1000)
+}
+
+
+dockerCompose{
+	isRequiredBy(project.tasks.startService)
+	useComposeFiles = ['docker-compose.yml']
+	stopContainers = false
+	removeContainers = false
+}
+
+build.dependsOn startService
+build.mustRunAfter startService
+
+test {
+	outputs.dir snippetsDir
+	useJUnitPlatform()
+}
+
+asciidoctor {
+	inputs.dir snippetsDir
+	dependsOn test
+}

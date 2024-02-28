@@ -1,0 +1,5 @@
+rootProject.name = 'PooBer'
+include 'billing'
+include 'wc-manager'
+include 'billing-manager'
+
